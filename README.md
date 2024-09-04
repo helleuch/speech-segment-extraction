@@ -30,11 +30,11 @@ This script processes WAV files to extract and merge speech segments using the S
 To run the script, use the following command:
 
 ```sh
-python script_name.py /path/to/your/folder [--log_folder /path/to/log/folder] [--export_folder /path/to/export/folder] [--threshold 0.250] [--min_duration 0.5] [--export_segments]
+python script_name.py /path/to/your/folder [--log_folder /path/to/log/folder] [--threshold 0.250] [--min_duration 0.5] 
 ```
 Example:
 ```sh
-python script_name.py /path/to/your/folder --log_folder /path/to/log/folder --export_folder /path/to/export/folder --threshold 0.250 --min_duration 0.5 --export_segments
+python script_name.py /path/to/your/folder --log_folder /path/to/log/folder --threshold 0.250 --min_duration 0.5
 ```
 
 ## Output
