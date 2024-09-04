@@ -4,11 +4,11 @@ import logging
 import os
 from typing import List, Dict, Any
 
-import matplotlib.pyplot as plt
-import numpy as np
 import soundfile as sf
 from silero_vad import load_silero_vad, read_audio, get_speech_timestamps
 from tqdm import tqdm
+
+from report import Report
 
 
 def setup_logging(log_folder: str) -> None:
@@ -76,13 +76,11 @@ def process_wav_files(folder: str, log_folder: str, export_folder: str, threshol
     total_audio_duration = 0
     total_speech_duration = 0
     total_segments = 0
-    total_files = 0
     files_without_speech = 0
 
     processed_log = os.path.join(log_folder, 'processed_files.log')
     error_log = os.path.join(log_folder, 'error_files.log')
     warning_log = os.path.join(log_folder, 'warning_files.log')
-    report_file = os.path.join(log_folder, 'report.txt')
     speech_segments_file = os.path.join(log_folder, 'speech_segments.csv')
 
     processed_files = set()
@@ -91,7 +89,6 @@ def process_wav_files(folder: str, log_folder: str, export_folder: str, threshol
             processed_files = set(f.read().splitlines())
 
     wav_files = [f for f in os.listdir(folder) if f.endswith('.wav') and f not in processed_files]
-    total_files = len(wav_files)
 
     with open(speech_segments_file, 'w', newline='') as csvfile:
         fieldnames = ['filename', 'segment_id', 'start', 'end', 'duration']
@@ -151,45 +148,6 @@ def process_wav_files(folder: str, log_folder: str, export_folder: str, threshol
                     f.write(f"{filename}: {e}\n")
                 logging.error(f"Error processing file {filename}: {e}")
 
-    # Calculate statistics on the whole dataset
-    if all_durations:
-        max_duration = max(all_durations)
-        quartiles = np.percentile(all_durations, [25, 50, 75])
-        mean_duration = np.mean(all_durations)
-        std_duration = np.std(all_durations)
-
-        speech_percentage = (total_speech_duration / total_audio_duration) * 100
-        non_speech_percentage = 100 - speech_percentage
-
-        report_content = (
-            f"Total Number of Files: {total_files}\n"
-            f"Number of Files Without Speech: {files_without_speech}\n"
-            f"Total Audio Duration: {total_audio_duration:.2f} seconds\n"
-            f"Total Speech Duration: {total_speech_duration:.2f} seconds\n"
-            f"Percentage of Speech: {speech_percentage:.2f}%\n"
-            f"Percentage of Non-Speech: {non_speech_percentage:.2f}%\n"
-            f"Total Number of Speech Segments: {total_segments}\n"
-            f"Maximum Segment Duration: {max_duration:.2f} seconds\n"
-            f"Segment Duration Quartiles: {quartiles}\n"
-            f"Mean Segment Duration: {mean_duration:.2f} seconds\n"
-            f"Standard Deviation of Segment Durations: {std_duration:.2f} seconds\n"
-        )
-
-        print(report_content)
-
-        with open(report_file, 'w') as report:
-            report.write(report_content)
-
-        plt.hist(all_durations, bins=10, edgecolor='black')
-        plt.title('Histogram of Segment Durations for All Files')
-        plt.xlabel('Duration (seconds)')
-        plt.ylabel('Frequency')
-        histogram_path = os.path.join(log_folder, 'segment_durations_histogram.png')
-        plt.savefig(histogram_path)
-        plt.close()
-    else:
-        logging.warning("No valid segments found in any files.")
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Process WAV files to extract and merge speech segments.")
@@ -204,5 +162,23 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     setup_logging(args.log_folder)
-    process_wav_files(args.folder, args.log_folder, args.export_folder, args.threshold, args.min_duration,
-                      args.export_segments)
+    process_wav_files(
+        args.folder,
+        args.log_folder,
+        args.export_folder,
+        args.threshold,
+        args.min_duration,
+        args.export_segments
+    )
+
+    # Define the paths
+    report_file = 'path_to_your_report_file.txt'
+
+    # Create an instance of the Report class and call it
+    report = Report(
+        original_folder=args.folder,
+        csv_file=os.path.join(args.log_folder, 'speech_segments.csv'),
+        log_folder=os.path.join(args.log_folder, 'report.txt'),
+        report_file=args.log_folder
+    )
+    report()
