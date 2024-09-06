@@ -1,6 +1,5 @@
-import wave
 import datetime as dt
-
+import wave
 
 
 def get_audio_duration(file: str) -> float:
@@ -29,12 +28,12 @@ def human_readable_duration(seconds: int) -> str:
     """
     # Convert seconds to a timedelta object
     delta = dt.timedelta(seconds=seconds)
-    
+
     # Extract hours, minutes, and seconds
     total_seconds = int(delta.total_seconds())
     hours, remainder = divmod(total_seconds, 3600)
     minutes, seconds = divmod(remainder, 60)
-    
+
     # Format the output
     readable_duration = f"{hours} hours, {minutes} minutes, {seconds} seconds"
     return readable_duration

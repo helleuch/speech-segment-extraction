@@ -1,7 +1,8 @@
-# torch
-# torchaudio
-soundfile==0.12.1
+torch
+torchaudio
 silero-vad==5.1
 tqdm==4.66.5
 numpy==2.1.1
 matplotlib==3.9.2
+pandas==2.2.2
+fastparquet==2024.5.0

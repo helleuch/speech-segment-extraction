@@ -3,8 +3,7 @@ import csv
 import logging
 import os
 import sys
-from typing import Any
-from typing import List, Dict
+from typing import List, Dict, Any
 
 import torch
 from silero_vad import load_silero_vad, read_audio, get_speech_timestamps
@@ -60,24 +59,16 @@ def merge_segments(segments: List[Dict[str, Any]], threshold: float) -> List[Dic
     return merged_segments
 
 
-def process_wav_files(folder: str | os.PathLike,
-                      file_list: list[str] = None,
-                      data_split: str = "",
-                      log_folder: str = "logs",
-                      threshold: float = 0.250,
-                      min_duration: float = 0.5,
-                      device: str = "cpu") -> None:
+def process_wav_files(folder: str, log_folder: str, threshold: float = 0.250,
+                      min_duration: float = 0.5, device: str = "cpu") -> None:
     """
     Process all WAV files in the given folder, merge segments, and optionally export new WAV files.
-    If a list of files is not provided, all the folder contents will be used instead.
+
     Args:
-        folder (str): Location of the WAV files.
-        file_list (list): A list of WAV file paths.
-        data_split (str): If using a file list, it is useful to keep track of the subset ID.
+        folder (str): Path to the folder containing WAV files.
         log_folder (str): Path to the folder for log files.
         threshold (float): Time threshold to merge segments.
         min_duration (float): Minimum duration of segments to keep.
-        device: device used for computation. In practice, using a GPU isn't proven to speed-up processing.
     """
     model = load_silero_vad().to(device)
     all_durations = []
@@ -85,15 +76,6 @@ def process_wav_files(folder: str | os.PathLike,
     total_speech_duration = 0
     total_segments = 0
     files_without_speech = 0
-
-    if file_list and data_split != "":
-        log_folder = os.path.join(log_folder, str(data_split))
-        os.makedirs(log_folder, exist_ok=True)
-    elif file_list and data_split == "":
-        logging.warning("No data split provided for this list of files. Exiting program.")
-        exit(1)
-    else:  # file_list is None whatever the value of the split:
-        print("Scanning folder contents...")
 
     processed_log = os.path.join(log_folder, 'processed_files.log')
     error_log = os.path.join(log_folder, 'error_files.log')
@@ -105,10 +87,7 @@ def process_wav_files(folder: str | os.PathLike,
         with open(processed_log, 'r') as f:
             processed_files = set(f.read().splitlines())
 
-    if file_list:
-        wav_files = [f for f in file_list if f.endswith('.wav') and f not in processed_files]
-    else:
-        wav_files = [f for f in os.listdir(folder) if f.endswith('.wav') and f not in processed_files]
+    wav_files = [f for f in os.listdir(folder) if f.endswith('.wav') and f not in processed_files]
 
     with open(speech_segments_file, 'w', newline='') as csvfile:
         fieldnames = ['filename', 'segment_id', 'start', 'end', 'duration']
@@ -190,11 +169,14 @@ if __name__ == "__main__":
         device
     )
 
+    # Define the paths
+    report_file = 'path_to_your_report_file.txt'
+
     # Create an instance of the Report class and call it
     report = Report(
         original_folder=args.folder,
         csv_file=os.path.join(args.log_folder, 'speech_segments.csv'),
-        report_file=os.path.join(args.log_folder, 'report.txt'),
-        log_folder=args.log_folder,
+        log_folder=os.path.join(args.log_folder, 'report.txt'),
+        report_file=args.log_folder
     )
     report()
