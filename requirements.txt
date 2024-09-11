@@ -1,5 +1,5 @@
-torch
-torchaudio
+# torch
+# torchaudio
 silero-vad==5.1
 tqdm==4.66.5
 numpy==2.1.1

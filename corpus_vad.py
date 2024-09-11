@@ -123,7 +123,4 @@ if __name__ == "__main__":
     )
 
     # Example call:
-    # python
-    # corpus_vad.py..\youtube - downloader\audio\.\global_output\processed_files.log.\global_output\warning_files.log
-    # logs
-    # cpu
+    # python corpus_vad.py ../youtube-downloader/audio/ ./global_output/processed_files.log ./global_output/warning_files.log logs cpu
